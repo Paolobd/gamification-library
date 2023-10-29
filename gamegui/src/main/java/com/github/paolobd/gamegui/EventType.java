@@ -1,6 +1,6 @@
 package com.github.paolobd.gamegui;
 
-public enum EventType {
+enum EventType {
     CLICK,
     NAVIGATION,
     LOCATOR,

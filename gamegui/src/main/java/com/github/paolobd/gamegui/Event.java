@@ -1,6 +1,6 @@
 package com.github.paolobd.gamegui;
 
-public class Event {
+class Event {
     private String id;
     private String url;
     private EventType eventType;
