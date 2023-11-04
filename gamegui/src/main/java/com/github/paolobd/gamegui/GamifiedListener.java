@@ -3,6 +3,7 @@ package com.github.paolobd.gamegui;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.events.WebDriverListener;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -57,6 +58,8 @@ public class GamifiedListener implements WebDriverListener {
 
         if (locator instanceof By.ById) {
             addEvent(new Event(reference, currentUrl, EventType.LOCATOR_ID));
+        } else if (locator instanceof By.ByName) {
+            addEvent(new Event(reference, currentUrl, EventType.LOCATOR_NAME));
         } else if (locator instanceof By.ByCssSelector) {
             addEvent(new Event(reference, currentUrl, EventType.LOCATOR_CSS));
         } else if (locator instanceof By.ByXPath) {
@@ -66,11 +69,12 @@ public class GamifiedListener implements WebDriverListener {
         }
     }
 
+
     @Override
     public void afterFindElements(WebDriver driver, By locator, List<WebElement> result) {
         WebDriverListener.super.afterFindElements(driver, locator, result);
 
-        for(WebElement element: result){
+        for (WebElement element : result) {
             afterFindElement(driver, locator, element);
         }
     }
@@ -335,7 +339,7 @@ public class GamifiedListener implements WebDriverListener {
     }
 
     private void sendData() throws IOException, URISyntaxException {
-        URL url = new URI("http://localhost:8080/receiveJson").toURL();
+        URL url = new URI("http://localhost:8080/sendEvents").toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
