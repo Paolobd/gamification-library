@@ -1,5 +1,6 @@
 plugins {
     `java-library` // <1>
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.github.paolobd"
@@ -9,7 +10,7 @@ repositories {
     mavenCentral() // <2>
 }
 
-val seleniumVersion = "4.14.1"
+val seleniumVersion = "4.15.0"
 val jacksonVersion = "2.15.3"
 
 dependencies {

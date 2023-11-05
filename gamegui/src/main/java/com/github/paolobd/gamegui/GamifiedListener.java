@@ -53,7 +53,7 @@ public class GamifiedListener implements WebDriverListener {
     public void afterFindElement(WebDriver driver, By locator, WebElement result) {
         WebDriverListener.super.afterFindElement(driver, locator, result);
 
-        System.out.println("Locator: " + locator.toString());
+        //System.out.println("Locator: " + locator.toString());
         String reference = locator.toString().split(":")[1].trim();
 
         if (locator instanceof By.ById) {
@@ -347,15 +347,15 @@ public class GamifiedListener implements WebDriverListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String send = objectMapper.writeValueAsString(eventList);
+        eventList.clear();
 
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = send.getBytes(StandardCharsets.UTF_8);
             os.write(input);
         }
-        int responseCode = connection.getResponseCode();
-        System.out.println("HTTP Response Code: " + responseCode);
+        //int responseCode = connection.getResponseCode();
+        //System.out.println("HTTP Response Code: " + responseCode);
         connection.disconnect();
-        eventList.clear();
     }
 
     private String createWebElementId(WebElement element) {
