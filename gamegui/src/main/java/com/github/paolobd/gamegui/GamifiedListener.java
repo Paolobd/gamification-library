@@ -347,15 +347,16 @@ public class GamifiedListener implements WebDriverListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String send = objectMapper.writeValueAsString(eventList);
-        eventList.clear();
+        //System.out.println("EventList: " + eventList);
 
         try (OutputStream os = connection.getOutputStream()) {
             byte[] input = send.getBytes(StandardCharsets.UTF_8);
             os.write(input);
         }
-        //int responseCode = connection.getResponseCode();
+        int responseCode = connection.getResponseCode();
         //System.out.println("HTTP Response Code: " + responseCode);
         connection.disconnect();
+        eventList.clear();
     }
 
     private String createWebElementId(WebElement element) {
