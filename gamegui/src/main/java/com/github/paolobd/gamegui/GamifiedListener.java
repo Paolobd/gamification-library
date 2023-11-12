@@ -6,10 +6,7 @@ import org.openqa.selenium.support.events.WebDriverListener;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Logger;
@@ -321,7 +318,12 @@ public class GamifiedListener implements WebDriverListener {
     }
 
     private String extractUrl(String url) {
-        return url.split("\\?")[0];
+        try {
+            URL site = new URI(url).toURL();
+            return site.getHost() + site.getPath();
+        } catch(Exception e) {
+            return url;
+        }
     }
 
     private void addEvent(Event event) {
