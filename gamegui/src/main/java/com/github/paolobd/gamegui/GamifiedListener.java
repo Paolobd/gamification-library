@@ -343,7 +343,7 @@ public class GamifiedListener implements WebDriverListener {
             byte[] input = send.getBytes(StandardCharsets.UTF_8);
             os.write(input);
         }
-        //System.out.println("HTTP Response Code: " + connection.getResponseCode());
+        connection.getResponseCode();
         connection.disconnect();
         //A new GamifiedListener will be attached to the new WebDriver hence the clear is not stricyly necessary
         eventList.clear();
