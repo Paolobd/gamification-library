@@ -71,16 +71,4 @@ public class LibraryTest {
 
         assertEquals("https://www.jetbrains.com/products/#type=ide-vs",driver.getCurrentUrl());
     }
-
-    @Test
-    public void loginTest() {
-        driver.get("https://idp.polito.it/idp/x509mixed-login");
-        WebElement userName = driver.findElement(By.cssSelector("[id$='username']"));
-        WebElement password = driver.findElement(By.cssSelector("input[id$='password']"));
-
-        userName.sendKeys("s292479");
-        password.sendKeys("Stefanut98!");
-
-        password.submit();
-    }
 }

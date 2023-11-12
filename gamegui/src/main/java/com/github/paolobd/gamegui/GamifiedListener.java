@@ -80,11 +80,6 @@ public class GamifiedListener implements WebDriverListener {
     }
 
     @Override
-    public void afterClose(WebDriver driver) {
-        WebDriverListener.super.afterClose(driver);
-    }
-
-    @Override
     public void beforeQuit(WebDriver driver) {
         WebDriverListener.super.beforeQuit(driver);
         Logger logger = Logger.getLogger("");
@@ -96,11 +91,6 @@ public class GamifiedListener implements WebDriverListener {
             logger.warning("Communication with GameGUI plugin failed. " +
                     "Check that the plugin is installed and running!");
         }
-    }
-
-    @Override
-    public void afterQuit(WebDriver driver) {
-        WebDriverListener.super.afterQuit(driver);
     }
 
     @Override
@@ -128,9 +118,11 @@ public class GamifiedListener implements WebDriverListener {
             addEvent(new Event(lastClickedElement[0], currentUrl, EventType.ELEMENT_CLICK));
         }
 
+        //Must be improved. We assume that a user always attempts to click a button which is the login button
+        //after inputting the password
         if (passwordInserted) {
             passwordInserted = false;
-            addEvent(new Event(lastClickedElement[0], currentUrl, EventType.LOGIN));
+            addEvent(new Event("", currentUrl, EventType.LOGIN));
         }
 
         if (!Objects.equals(currentUrl, newUrl)) {
@@ -143,8 +135,6 @@ public class GamifiedListener implements WebDriverListener {
     @Override
     public void beforeSubmit(WebElement element) {
         WebDriverListener.super.beforeSubmit(element);
-
-        if (element == null) return;
 
         lastClickedElement[0] = createWebElementId(element);
         lastClickedElement[1] = element.getAttribute("type");
@@ -160,7 +150,7 @@ public class GamifiedListener implements WebDriverListener {
 
         if (passwordInserted) {
             passwordInserted = false;
-            addEvent(new Event(lastClickedElement[0], currentUrl, EventType.LOGIN));
+            addEvent(new Event("", currentUrl, EventType.LOGIN));
         }
 
         if (!Objects.equals(currentUrl, newUrl)) {
@@ -353,9 +343,9 @@ public class GamifiedListener implements WebDriverListener {
             byte[] input = send.getBytes(StandardCharsets.UTF_8);
             os.write(input);
         }
-        int responseCode = connection.getResponseCode();
-        //System.out.println("HTTP Response Code: " + responseCode);
+        //System.out.println("HTTP Response Code: " + connection.getResponseCode());
         connection.disconnect();
+        //A new GamifiedListener will be attached to the new WebDriver hence the clear is not stricyly necessary
         eventList.clear();
     }
 
@@ -372,6 +362,12 @@ public class GamifiedListener implements WebDriverListener {
             return name;
         }
 
+        String xpath = generateXPATH(element, "");
+
+        if (xpath != null) {
+            return xpath;
+        }
+
         String text = element.getText();
 
         if (!(name == null || Objects.equals(text, ""))) {
@@ -379,5 +375,25 @@ public class GamifiedListener implements WebDriverListener {
         }
 
         return element.getAttribute("class");
+    }
+
+    private String generateXPATH(WebElement childElement, String current) {
+        String childTag = childElement.getTagName();
+        if (childTag.equals("html")) {
+            return "/html[1]" + current;
+        }
+        WebElement parentElement = childElement.findElement(By.xpath(".."));
+        List<WebElement> childrenElements = parentElement.findElements(By.xpath("*"));
+        int count = 0;
+        for (WebElement childrenElement : childrenElements) {
+            String childrenElementTag = childrenElement.getTagName();
+            if (childTag.equals(childrenElementTag)) {
+                count++;
+            }
+            if (childElement.equals(childrenElement)) {
+                return generateXPATH(parentElement, "/" + childTag + "[" + count + "]" + current);
+            }
+        }
+        return null;
     }
 }
