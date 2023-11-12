@@ -1,3 +1,3 @@
 
-rootProject.name = "game-gui-library"
+rootProject.name = "gamification-library"
 include("gamegui")
