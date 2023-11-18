@@ -16,7 +16,7 @@ public class GamifiedListener implements WebDriverListener {
     private final List<Event> eventList = new ArrayList<>();
     private String currentUrl = "";
     private Boolean passwordInserted = false;
-    private final String[] lastClickedElement = new String[2];
+    private final String[] lastInteractedElement = new String[2];
 
     public GamifiedListener(WebDriver driver) {
         this.driver = driver;
@@ -94,9 +94,8 @@ public class GamifiedListener implements WebDriverListener {
     public void beforeClick(WebElement element) {
         WebDriverListener.super.beforeClick(element);
 
-        lastClickedElement[0] = createWebElementId(element);
-        lastClickedElement[1] = element.getAttribute("type");
-
+        lastInteractedElement[0] = createWebElementId(element);
+        lastInteractedElement[1] = element.getAttribute("type");
     }
 
     @Override
@@ -104,15 +103,15 @@ public class GamifiedListener implements WebDriverListener {
         WebDriverListener.super.afterClick(element);
 
         //If clicking the button triggered a navigation I cannot retrieve the element in the current page
-        String type = lastClickedElement[1];
+        String type = lastInteractedElement[1];
 
         String newUrl = extractUrl(driver.getCurrentUrl());
 
         if (Objects.equals(type, "submit")) {
-            addEvent(new Event(lastClickedElement[0], currentUrl, EventType.ELEMENT_CLICK));
-            addEvent(new Event(lastClickedElement[0], currentUrl, EventType.SUBMIT));
+            addEvent(new Event(lastInteractedElement[0], currentUrl, EventType.ELEMENT_CLICK));
+            addEvent(new Event(lastInteractedElement[0], currentUrl, EventType.SUBMIT));
         } else {
-            addEvent(new Event(lastClickedElement[0], currentUrl, EventType.ELEMENT_CLICK));
+            addEvent(new Event(lastInteractedElement[0], currentUrl, EventType.ELEMENT_CLICK));
         }
 
         //Must be improved. We assume that a user always attempts to click a button which is the login button
@@ -133,8 +132,8 @@ public class GamifiedListener implements WebDriverListener {
     public void beforeSubmit(WebElement element) {
         WebDriverListener.super.beforeSubmit(element);
 
-        lastClickedElement[0] = createWebElementId(element);
-        lastClickedElement[1] = element.getAttribute("type");
+        lastInteractedElement[0] = createWebElementId(element);
+        lastInteractedElement[1] = element.getAttribute("type");
     }
 
     @Override
@@ -143,7 +142,7 @@ public class GamifiedListener implements WebDriverListener {
 
         String newUrl = extractUrl(driver.getCurrentUrl());
 
-        addEvent(new Event(lastClickedElement[0], currentUrl, EventType.SUBMIT));
+        addEvent(new Event(lastInteractedElement[0], currentUrl, EventType.SUBMIT));
 
         if (passwordInserted) {
             passwordInserted = false;
@@ -158,13 +157,21 @@ public class GamifiedListener implements WebDriverListener {
     }
 
     @Override
+    public void beforeSendKeys(WebElement element, CharSequence... keysToSend) {
+        WebDriverListener.super.afterSendKeys(element, keysToSend);
+
+        lastInteractedElement[0] = createWebElementId(element);
+        lastInteractedElement[1] = element.getAttribute("type");
+    }
+
+    @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         WebDriverListener.super.afterSendKeys(element, keysToSend);
 
-        String id = createWebElementId(element);
+        String id = lastInteractedElement[0];
         addEvent(new Event(id, currentUrl, EventType.ELEMENT_SEND_KEYS));
 
-        String type = element.getAttribute("type");
+        String type = lastInteractedElement[1];
 
         if (Objects.equals(type, "password")) {
             passwordInserted = true;
@@ -172,10 +179,18 @@ public class GamifiedListener implements WebDriverListener {
     }
 
     @Override
+    public void beforeClear(WebElement element) {
+        WebDriverListener.super.afterClear(element);
+
+        lastInteractedElement[0] = createWebElementId(element);
+        lastInteractedElement[1] = element.getAttribute("type");
+    }
+
+    @Override
     public void afterClear(WebElement element) {
         WebDriverListener.super.afterClear(element);
 
-        String type = element.getAttribute("type");
+        String type = lastInteractedElement[1];
 
         if (Objects.equals(type, "password")) {
             passwordInserted = false;
@@ -321,7 +336,7 @@ public class GamifiedListener implements WebDriverListener {
         try {
             URL site = new URI(url).toURL();
             return site.getHost() + site.getPath();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return url;
         }
     }
